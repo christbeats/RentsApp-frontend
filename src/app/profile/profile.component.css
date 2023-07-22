@@ -1,0 +1,7 @@
+section{
+  background: #3a9dd6;
+
+  background: -webkit-linear-gradient(to right, rgba(41, 104, 175, 0.486), rgba(166, 193, 238, 1));
+  background: linear-gradient(to right, rgb(35, 86, 153), rgba(166, 193, 238, 1))
+
+}
