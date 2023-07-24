@@ -13,13 +13,28 @@ export class PropertiesService {
   constructor(private http: HttpClient) { }
 
 
-  private base_url = `${env.api}property`
+  private property_url = `${env.api}property`
 
-  public getProperties(data: any): Observable<any> {
-    return this.http.post<any>(`${this.base_url}/create-property`, data).pipe(
-      catchError(this.handleError<any>('register'))
+  public getProperties(): Observable<any> {
+    return this.http.get<any>(`${this.property_url}/allProperties`).pipe(
+      catchError(this.handleError<any>('dashboard'))
     )
   }
+
+  // public updateProperties(data: any): Observable<any> {
+  //   return this.http.post<any>(`${this.base_url}/updateProperty`, data).pipe(
+  //     catchError(this.handleError<any>('updateProperty'))
+  //   )
+  // }
+
+  // public deleteProperties(data: any): Observable<any> {
+  //   return this.http.post<any>(`${this.base_url}/deleteproperty/:id`, data).pipe(
+  //     catchError(this.handleError<any>('deleteProperty'))
+  //   )
+  // }
+
+
+
 
 
 
