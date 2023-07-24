@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormGroupDirective, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Product } from '../models/product';
 import { ProductService } from '../services/productservice';
@@ -10,9 +10,10 @@ import { UserService } from '../services/user.service';
 
 
 export interface Property {
+  _id?: string;
   title?: string;
   description?: string;
-  condition?: string;
+  conditions?: string;
   type?: string;
   surfaceArea?: string;
   livingroom?: number;
@@ -49,23 +50,27 @@ export interface Property {
 })
 export class PropertiesComponent implements OnInit {
 
-  productDialog: boolean = false;
+  // productDialog: boolean = false;
+  propertyDialog: boolean = false;
 
-  products!: Product[];
+  // products!: Product[];
 
 
 
   properties: Property[] = [];
-  property! : Property;
+  property!: Property;
+  imageProperties!: any[]
   loading = false
 
-  product!: Product;
+  // product!: Product;
 
   selectedProducts!: Product[] | null;
 
   submitted: boolean = false;
 
-  statuses!: any[];
+  statuses!: any[]
+  // room!: any[];
+  regions!: any[];
 
 
   // form = this.formBuilder.group(
@@ -79,7 +84,7 @@ export class PropertiesComponent implements OnInit {
   //   }
 
   // );
-  // formUpdate = this.formBuilder.group(
+  // formUpdate = this.FormBuilder.group(
   //   {
   //     place: ['', Validators.required],
   //     name: ['', [Validators.required]],
@@ -90,28 +95,59 @@ export class PropertiesComponent implements OnInit {
   //   }
   // );
 
+  form = this.formBuilder.group(
+    {
+
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    }
+
+  );
+
 
 
   sideBarOpen = true;
+  loadingupdate = false;
 
   constructor(private productService: ProductService,
     private propertiesService: PropertiesService,
     private userService: UserService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService) { }
+    private confirmationService: ConfirmationService,
+    private formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
-
-    this.productService.getProducts().then((data) => (this.products = data));
     this.statuses = [
-      { label: 'INSTOCK', value: 'instock' },
-      { label: 'LOWSTOCK', value: 'lowstock' },
-      { label: 'OUTOFSTOCK', value: 'outofstock' }
+      { label: 'ROOM', value: 'room' },
+      { label: 'APPARTMENT', value: 'appartement' },
+      { label: 'HOUSE', value: 'house' }
+
+
+    ];
+
+
+    // console.log("mes images" + this.imageProperties);
+
+
+
+
+    this.regions = [
+      { label: 'CENTER', value: 'center' },
+      { label: 'SOUTH', value: 'south' },
+      { label: 'SOUTH WEST', value: 'south-west' },
+      { label: 'EAST', value: 'east' },
+      { label: 'NORTH WEST', value: 'north-west' },
+      { label: 'ADAMAWA', value: 'adamawa' },
+      { label: 'WEST', value: 'west' },
+      { label: 'LITORAL', value: 'litoral' },
+      { label: 'FAR NORTH', value: 'far-north' },
+      { label: 'NORTH', value: 'north' }
     ];
 
     this.getProperties()
     // this.getUser()
     // this.deleteUser
+    this.deleteProperty
   }
 
   getProperties(): void {
@@ -177,29 +213,64 @@ export class PropertiesComponent implements OnInit {
   // }
 
   openNew() {
-    this.product = {};
+    // this.product = {};
     this.submitted = false;
-    this.productDialog = true;
+    // this.productDialog = true;
+    this.propertyDialog = true;
   }
 
 
 
-  deleteSelectedProducts() {
-    this.confirmationService.confirm({
-      message: 'Are you sure you want to delete the selected products?',
-      header: 'Confirm',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.products = this.products.filter((val) => !this.selectedProducts?.includes(val));
-        this.selectedProducts = null;
-        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
+  // deleteSelectedProducts() {
+  //   this.confirmationService.confirm({
+  //     message: 'Are you sure you want to delete the selected products?',
+  //     header: 'Confirm',
+  //     icon: 'pi pi-exclamation-triangle',
+  //     accept: () => {
+  //       this.products = this.products.filter((val) => !this.selectedProducts?.includes(val));
+  //       this.selectedProducts = null;
+  //       this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
+  //     }
+  //   });
+  // }
+
+  editProperty(property: Property) {
+    this.property = { ...property }
+    this.propertyDialog = true
+
+    this.imageProperties = [
+      this.property.featuredImage,
+      this.property.image1,
+      this.property.image2,
+      this.property.image3,
+      this.property.image4
+    ]
+
+
+    // this.propertiesService.editProperty(this.property).subscribe( data =>{
+    // })
+  }
+
+  saveProperty(){
+    this.loadingupdate = true;
+    this.propertiesService.editProperty({
+      ...this.property,
+      // featuredImage:this.property.featuredImage,
+      // image1:this.property.image1,
+      // image2:this.property.image2,
+      // image3:this.property.image3,
+      // image4:this.property.image4
+    }).toPromise().then(
+      (d) => {
+        this.loadingupdate = false
+        this.propertyDialog = false
+        this.getProperties()
+      },
+      (er) => {
+        this.loadingupdate = false;
+        console.log(er);
       }
-    });
-  }
-
-  editProduct(product: Product) {
-    this.product = { ...product };
-    this.productDialog = true;
+    )
   }
 
   // deleteProduct(product: Product) {
@@ -215,7 +286,7 @@ export class PropertiesComponent implements OnInit {
   //   });
   // }
 
-  
+
   // deleteUser(user: User) {
   //   this.confirmationService.confirm({
   //     message: 'Are you sure you want to delete ' + user.username + '?',
@@ -228,6 +299,29 @@ export class PropertiesComponent implements OnInit {
   //     }
   //   });
   // }
+
+  deleteProperty(property: Property) {
+    console.log(property);
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete ' + property.title + '?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.properties = this.properties.filter((val) => val._id !== property._id);
+        this.property = {};
+        this.propertiesService.deleteProperty(property._id).subscribe((data) => {
+          if (data.success) {
+            console.log(data.message);
+            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Property Deleted', life: 3000 })
+
+          } else {
+            console.log(data, property._id);
+            this.messageService.add({ severity: 'error', summary: 'Dammage', detail: 'Error', life: 3000 })
+          }
+        })
+      }
+    });
+  }
 
   deleteSelectedProperty() {
     console.log("delete");

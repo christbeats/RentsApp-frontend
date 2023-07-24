@@ -31,13 +31,13 @@ export class UserService {
 
   public getUser(): Observable<any> {
     return this.http.get<any>(`${this.user_url}/allUsers`).pipe(
-      catchError(this.handleError<any>('dashboard'))
+      catchError(this.handleError<any>('allUsers'))
     )
   }
 
-  public deleteUser(): Observable<any> {
-    return this.http.delete<any>(`${this.user_url}/deleteuser/:id`).pipe(
-      catchError(this.handleError<any>('dashboard'))
+  public deleteUser(id: any): Observable<any> {
+    return this.http.delete<any>(`${this.user_url}/deleteuser/${id}`).pipe(
+      catchError(this.handleError<any>('deleteuser'))
     )
   }
 

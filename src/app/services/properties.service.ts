@@ -17,7 +17,19 @@ export class PropertiesService {
 
   public getProperties(): Observable<any> {
     return this.http.get<any>(`${this.property_url}/allProperties`).pipe(
-      catchError(this.handleError<any>('dashboard'))
+      catchError(this.handleError<any>('allProperties'))
+    )
+  }
+
+  public deleteProperty(id: any): Observable<any> {
+    return this.http.delete<any>(`${this.property_url}/deleteproperty/${id}`).pipe(
+      catchError(this.handleError<any>('deleteproperty'))
+    )
+  }
+
+  public editProperty(data: any): Observable<any> {
+    return this.http.put<any>(`${this.property_url}/updateProperty/`, data).pipe(
+      catchError(this.handleError<any>('updateProperty'))
     )
   }
 

@@ -33,6 +33,7 @@ import { UserService } from '../services/user.service';
 
 
 export interface User {
+  _id?: string;
   email?: string;
   phoneNumber?: string;
   username?: string;
@@ -220,9 +221,18 @@ export class DashboardComponent implements OnInit {
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.users = this.users.filter((val) => val.email !== user.email);
+        this.users = this.users.filter((val) => val._id !== user._id);
         this.user = {};
-        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Deleted', life: 3000 });
+        this.userService.deleteUser(user._id).subscribe((data) => {
+          if (data.success) {
+            console.log(data.message);
+            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Property Deleted', life: 3000 })
+
+          } else {
+            console.log(data, user._id);
+            this.messageService.add({ severity: 'error', summary: 'Dammage', detail: 'Error', life: 3000 })
+          }
+        })
       }
     });
   }
